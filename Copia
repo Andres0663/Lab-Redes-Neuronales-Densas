@@ -1,0 +1,128 @@
+# # Sección de imports
+
+# import tensorflow as tf
+# import pandas as pd
+# from keras import layers, models, Input
+# import matplotlib.pyplot as plt
+
+# # Hiperparámetros
+# train_percentage = 0.75  # % de datos a apartar para el entrenamiento
+# n = 2  # Número de capas ocultas del modelo
+# units = 5  # Número de neuronas por capa
+# activation = "sigmoid"  # Función de activación
+# learning_rate = 0.01  # Taza de aprendizaje
+# loss = "binary_crossentropy"  # Función de pérdida
+# batch_size = 250  # Tamaño de lote
+# epochs = 10  # Número de iteraciones de entrenamiento
+
+# # Lectura de los datos
+
+# dataset = pd.read_csv("./SESION 01/LABORATORIO/milknew.csv")
+# print(dataset)
+
+# # Identificación de datos
+# # counter = 0
+
+# # def identificator_binary(data):
+# #     global counter
+# #     if data != 0 and data != 1:
+# #         print("error")
+# #         counter += 1
+# #         return 0
+# #     else:
+# #         return data
+    
+# # def identificator_ranges(data):
+# #     global counter
+# #     if data <= 230 or data > 255:
+# #         print("error")
+# #         counter += 1
+# #         return 0
+# #     else:
+# #         return data
+    
+# # # Función para identificar valores de pH
+# # def identificator_ph(data):
+# #     global counter
+# #     # Verifica si el valor de pH está fuera del rango aceptable
+# #     if data <= 1 or data > 13:
+# #         print("error")
+# #         counter += 1
+# #         return 0
+# #     else:
+# #         return data
+
+# # # Función para identificar valores de temperatura
+# # def identificator_Temprature(data):
+# #     global counter
+# #     # Verifica si el valor de temperatura está fuera del rango aceptable (0 a 100 grados Celsius)
+# #     if data < 0 or data > 100:
+# #         print("error")
+# #         counter += 1
+# #         return 0
+# #     else:
+# #         return data
+
+# # # Aplica la función identificator_binary a la columna "Taste" del dataset
+# # dataset["Taste"] = dataset["Taste"].apply(identificator_binary)
+# # # Aplica la función identificator_binary a la columna "Fat" del dataset
+# # dataset["Fat"] = dataset["Fat"].apply(identificator_binary)
+# # # Aplica la función identificator_binary a la columna "Odor" del dataset
+# # dataset["Odor"] = dataset["Odor"].apply(identificator_binary)
+# # # Aplica la función identificator_binary a la columna "Turbidity" del dataset
+# # dataset["Turbidity"] = dataset["Turbidity"].apply(identificator_binary)
+# # # Aplica la función identificator_ranges a la columna "Colour" del dataset
+# # dataset["Colour"] = dataset["Colour"].apply(identificator_ranges)
+# # dataset["pH"] = dataset["pH"].apply(identificator_ph)
+# # dataset["Temprature"] = dataset["Temprature"].apply(identificator_Temprature)
+# # print(counter)
+
+
+
+# # División en entrenamiento y validación.
+# trainset = dataset.sample(frac = train_percentage)
+# # ATENCIÓN: HIPERPARÁMETRO # Se extraen un 75% de los datos para el entrenamiento y se almacenan por aparte
+# testset = dataset.drop(trainset.index)
+# # Y se le quitan esos mismos # al dataset para crear los datos de prueba
+# print(trainset)
+
+# # Inicialización del modelo
+# network = models.Sequential()
+
+# # Declaración de la capa de entrada
+# network.add(Input(shape=(7,))) # Note: una única entrada
+
+# for i in range(n-1): # n: número de neuronas intermedias
+#     network.add(layers.Dense(
+#         units=units, # units: número de neuronas por capa
+#         activation=activation)) # activation: función de activación elegida.
+
+# # Declaración de la capa de salida
+# network.add(layers.Dense(
+#     units=3, # 3 salidas
+#     activation="sigmoid")) # Problema de regresión, por tanto salida dada por # sigmoid
+
+# # Algoritmo entrenamiento
+
+# network.compile(
+#     optimizer=tf.keras.optimizers.Adam( # Algoritmo de optimización
+#         learning_rate=0.01 # learning_rate: ritmo de aprendizaje 
+#         ),
+#         loss = loss) # loss: función de pérdida
+
+# losses = network.fit(
+#     x = trainset[["ph", "Temprature", "Taste", "Odor", "Fat", "Turbidity", "Colour"]], # Datos de entrada (entrenamiento)
+#     y = trainset['Grade'], # Datos de salida (entrenamiento)
+#     validation_data = ( # Conjuntos de datos de validación
+#         testset[["ph", "Temprature", "Taste", "Odor", "Fat", "Turbidity", "Colour"]], # Entrada de validación
+#         testset['Grade'] # Salida de validación 
+#         ),
+#     batch_size = batch_size, # Tamaño de muestreo
+#     epochs = epochs # Cantidad de iteraciones de entrenamiento 
+#     )
+
+# # Se extrae el historial de error contra iteraciones de la clase
+# loss_df = pd.DataFrame(losses.history)
+# loss_df.loc[:, ['loss', 'val_loss']].plot() # Se crea la curva a graficar
+# # Y se llama a la ventana que se muestre la grafica
+# plt.show()
