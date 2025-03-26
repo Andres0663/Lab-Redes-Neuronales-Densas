@@ -3,6 +3,8 @@ import tensorflow as tf
 import pandas as pd
 from keras import layers, models, Input
 import matplotlib.pyplot as plt
+from keras.utils import to_categorical  # Importar to_categorical
+from sklearn.preprocessing import LabelEncoder  # Importar LabelEncoder
 
 # Hiperparámetros
 train_percentage = 0.75  # Porcentaje de datos para entrenamiento
@@ -10,7 +12,7 @@ n = 2  # Número de capas ocultas
 units = 5  # Neuronas por capa
 activation = "relu"  # Función de activación
 learning_rate = 0.01  # Tasa de aprendizaje
-loss = "BinaryCrossentropy"  # Función de pérdida para clasificación multiclase
+loss = "categorical_crossentropy"  # Función de pérdida para clasificación multiclase
 batch_size = 250  # Tamaño del lote
 epochs = 10  # Iteraciones de entrenamiento
 
@@ -20,6 +22,11 @@ dataset = pd.read_csv("./SESION 01/LABORATORIO/milknew.csv")
 # División en entrenamiento y validación
 trainset = dataset.sample(frac=train_percentage, random_state=42)  # Se fija la semilla para reproducibilidad
 testset = dataset.drop(trainset.index)
+
+# Codificación de las etiquetas
+label_encoder = LabelEncoder()
+trainset["Grade"] = label_encoder.fit_transform(trainset["Grade"])
+testset["Grade"] = label_encoder.transform(testset["Grade"])
 
 # Inicialización del modelo
 network = models.Sequential()
@@ -43,9 +50,9 @@ network.compile(
 
 # Definir las columnas de entrada y salida
 X_train = trainset[["pH", "Temprature", "Taste", "Odor", "Fat", "Turbidity", "Colour"]].values
-y_train = trainset["Grade"].values
+y_train = to_categorical(trainset["Grade"].values, num_classes=3)  # One-hot encoding
 X_test = testset[["pH", "Temprature", "Taste", "Odor", "Fat", "Turbidity", "Colour"]].values
-y_test = testset["Grade"].values
+y_test = to_categorical(testset["Grade"].values, num_classes=3)  # One-hot encoding
 
 # Entrenamiento
 history = network.fit(
@@ -59,4 +66,4 @@ history = network.fit(
 # Gráfico de pérdida
 loss_df = pd.DataFrame(history.history)
 loss_df.loc[:, ['loss', 'val_loss']].plot()
-plt.show()
+plt.savefig('learning_curve.png')  # Guardar la gráfica en un archivo
